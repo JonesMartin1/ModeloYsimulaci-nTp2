@@ -1,7 +1,6 @@
 import datetime
 import numpy as np
 import scipy.stats as stats
-import pandas as pd
 
 def prueba_chi_cuadrado(numeros: list, cantidad_bins=10, nivel_significancia=0.05):
     """
@@ -67,7 +66,6 @@ def obtener_rangos_probabilidad(probabilidad_defecto):
         "no_defectuoso": [int(numeros_despues_del_punto), valor_maximo]
     }
     return rangos_clasificacion, valor_maximo
-
 def simular_control_lote(probabilidad_lote, tamaño_muestra, limite_aceptacion, semilla=12344):
     """
     Simula el proceso de control de calidad para un lote de placas de video.
@@ -90,16 +88,12 @@ def simular_control_lote(probabilidad_lote, tamaño_muestra, limite_aceptacion, 
         semilla += 1
         numeros_aleatorios = generador_aleatorio_mixto(semilla=semilla, cantidad_digitos=tamaño_muestra * len(str(valor_maximo)) * 2)
         prueba_valida, _, _ = prueba_chi_cuadrado(numeros_aleatorios)
-    for _ in range(tamaño_muestra):
-        numero_generado = int("".join(str(numeros_aleatorios.pop(0)) for _ in range(len(str(valor_maximo)))))
+    for numero_generado in numeros_aleatorios:
         if rangos_probabilidad["defectuoso"][0] <= numero_generado <= rangos_probabilidad["defectuoso"][1]:
             cantidad_defectuosas += 1
         else:
             cantidad_no_defectuosas += 1
-    if cantidad_defectuosas <= limite_aceptacion:
-        return True
-    else:
-        return False
+    return cantidad_defectuosas <= limite_aceptacion
 
 def simular_control_fabrica(cantidad_simulaciones):
     """
@@ -108,17 +102,18 @@ def simular_control_fabrica(cantidad_simulaciones):
     Args:
         cantidad_simulaciones (int): Cantidad de lotes a simular.
     """
-    lista_lotes = []
+    resultados_lotes = []
     print("Ingresar los valores de p, n y a para la simulación de la fábrica de placas de video")
     probabilidad_lote = float(input("Probabilidad de placa grafica defectuosa (En decimales): "))
     tamaño_muestra = int(input("Tamaño de la muestra de control: "))
     limite_aceptacion = int(input("Límite de aceptación (Del tamaño de la muestra actual): "))
     for _ in range(cantidad_simulaciones):
-        lista_lotes.append(simular_control_lote(probabilidad_lote, tamaño_muestra, limite_aceptacion, semilla=333))
-    datos_lotes = pd.DataFrame(lista_lotes, columns=["Aprobado"])
-    print(datos_lotes)
-    print(datos_lotes["Aprobado"].value_counts())
-    print(datos_lotes["Aprobado"].value_counts(normalize=True))
-    print("Proporción de placas defectuosas promedio:", datos_lotes["Aprobado"].mean())
+        resultado_lote = simular_control_lote(probabilidad_lote, tamaño_muestra, limite_aceptacion)
+        resultados_lotes.append(resultado_lote)
+    cantidad_lotes_aprobados = sum(resultados_lotes)
+    proporcion_lotes_aprobados = cantidad_lotes_aprobados / cantidad_simulaciones
+    print(f"Cantidad de lotes simulados: {cantidad_simulaciones}")
+    print(f"Cantidad de lotes aprobados: {cantidad_lotes_aprobados}")
+    print(f"Proporción de lotes aprobados: {proporcion_lotes_aprobados:.2%}")
 
-simular_control_fabrica(6)
+simular_control_fabrica(10)
