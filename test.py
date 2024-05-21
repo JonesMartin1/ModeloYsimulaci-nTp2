@@ -75,9 +75,9 @@ def main():
     
     # Parámetros del generador aleatorio
     semilla = 123456  # Semilla inicial para el generador
-    a = 1664525  # Multiplicador
-    c = 1013904223  # Incremento
-    m = 2**32  # Módulo
+    a = 123456  # Multiplicador
+    c = 32  # Incremento
+    m = 2147483647  # Módulo
     tamano_lote = 100  # Tamaño del lote (opcional, por defecto 100)
 
     # Simulación de múltiples lotes
