@@ -2,69 +2,44 @@ import datetime
 import numpy as np
 import scipy.stats as stats
 
-tiempo0 = 15
-
-def congruentialmixed(a, c, m, seed, p):
-    """
-    Simulates a congruential mixed linear generator.
-
-    Args:
-        a: Multiplier constant.
-        c: Increment constant.
-        m: Modulus.
-        seed: Initial seed value.
-        p: Number of pseudo-random numbers to generate.
-
-    Returns:
-        A list of pseudo-random numbers.
-    """
-    numerosPseudoAleatorios = []
-    for _ in range(p):
-        seed = (a * seed + c) % m
-        seed += (datetime.datetime.now().microsecond * 0.000001)
-        pseudo_random_number = seed / m
-        if pseudo_random_number < 1:
-            numerosPseudoAleatorios.append(pseudo_random_number)
-        else:
-            numerosPseudoAleatorios.append(pseudo_random_number - int(pseudo_random_number))
-        
-    return numerosPseudoAleatorios
-
-def chi_squared_test(numbers: list, num_bins=10, alpha=0.05):
-    """
-    Realiza el test de chi-cuadrado para evaluar si una secuencia de números sigue una distribución uniforme.
+def chi_squared_test(numbers: list, num_bins=10, alpha=0.005):
+    # Convertir los números a una escala de 0 a 1 si es necesario
+    scaled_numbers = [(x / 10) + 0.01 for x in numbers]
     
-    Args:
-        numbers (list): Secuencia de números generados.
-        num_bins (int): Número de bins para el histograma.
-        alpha (float): Nivel de significancia para el test de chi-cuadrado.
-
-    Returns:
-        bool: True si pasa el test, False de lo contrario.
-        float: Estadístico de chi-cuadrado calculado.
-        float: Valor crítico de chi-cuadrado.
-    """
-    expected_frequency = len(numbers) / num_bins
-    observed_frequency, _ = np.histogram(numbers, bins=num_bins)
+    # Definir los límites de los bins
+    bin_edges = np.linspace(0, 1, num_bins+1)
+    
+    # Crear un histograma con los números escalados
+    observed_frequency, _ = np.histogram(scaled_numbers, bins=bin_edges)
+    
+    # Calcular la frecuencia esperada
+    expected_frequency = len(scaled_numbers) / num_bins
+    
+    # Calcular el estadístico chi-cuadrado
     chi_squared_statistic = np.sum((observed_frequency - expected_frequency) ** 2 / expected_frequency)
+    
+    # Obtener el valor crítico de la distribución chi-cuadrado
     critical_value = stats.chi2.ppf(1 - alpha, num_bins - 1)
+    
+    # Retornar el resultado de la prueba
     return chi_squared_statistic <= critical_value
 
+def generador_aleatorio_mixto1(semilla: int, a, c, m, p):
+    resultados = []
+    while len(resultados) < p:
+        semilla = ((a * semilla + c) % m)
+        for digit in str(semilla):
+            if len(resultados) < p:
+                resultados.append(int(digit))
+    if chi_squared_test(resultados):
+        return [(((x / m)*100000000)*3) for x in resultados]
+    else:
+        return False
 
-def clasificar_numeros(lista, resultado_chi_cuadrado):
-    """
-    Clasifica los números de la lista según los rangos especificados si el resultado del test chi-cuadrado es True.
-
-    Args:
-        lista (list): Lista de números generados.
-        resultado_chi_cuadrado (bool): Resultado del test de chi-cuadrado.
-
-    Returns:
-        list: Lista de números clasificados.
-    """
-    if not resultado_chi_cuadrado:
-        return []
-
+def clasificar_numeros(lista):
+    print(lista)
+    if lista == False:
+        return False
     clasificados = []
     for valor in lista:
         if 0 <= valor <= 0.036:
@@ -79,32 +54,25 @@ def clasificar_numeros(lista, resultado_chi_cuadrado):
             clasificados.append(1)
         elif 0.660 <= valor <= 0.887:
             clasificados.append(2)
-        elif 0.888 <= valor <= 0.999:
+        elif 0.888 <= valor:
             clasificados.append(3)
+    print(clasificados)
     return clasificados
 
-
 def procesar_y_sumar(clasificados, tiempo0):
-    """
-    Toma una lista de números clasificados, multiplica cada valor por 5 y suma todos los valores.
-    Aplica reglas de resta en cada iteración según el valor total.
-
-    Args:
-        clasificados (list): Lista de números clasificados.
-
-    Returns:
-        int: Suma de todos los valores multiplicados por 5, aplicando reglas de resta.
-    """
+    if clasificados == False:
+        return "No se aceptó la prueba"
     Compuerta1 = 0
     Compuerta2 = 0
     Compuerta3 = 0
     Compuerta4 = 0
     AlertaRoja = 0
+    contadordedías = 0
     
     suma_total = tiempo0
     for valor in clasificados:
-        # Multiplicar el valor clasificado por 5
-        
+        contadordedías += 1
+                
         if valor > 0:
             if valor == 3:
                 valor_multiplicado = valor + 3
@@ -121,15 +89,21 @@ def procesar_y_sumar(clasificados, tiempo0):
         suma_total += valor_multiplicado
         
         # Aplicar reglas de resta según el valor total
-        if suma_total >= 55:
-            print ("SE ROMPIO LA REPRESA")
-        elif suma_total > 40:
+        if suma_total >= 52:
+            return ("El agua sobrepasó la represa en el día "+ str(contadordedías))
+        elif suma_total > 45:
             suma_total -= 4
             Compuerta1 += 1
             Compuerta2 += 1
             Compuerta3 += 1
             Compuerta4 += 1
             AlertaRoja += 1
+        elif suma_total > 40:
+            suma_total -= 4
+            Compuerta1 += 1
+            Compuerta2 += 1
+            Compuerta3 += 1
+            Compuerta4 += 1
         elif suma_total > 32:
             suma_total -= 3
             Compuerta1 += 5
@@ -142,15 +116,23 @@ def procesar_y_sumar(clasificados, tiempo0):
         elif suma_total > 15:
             suma_total -= 1
             Compuerta1 += 1
-        elif suma_total < 0:
-            print("SEQUIA")
+        elif suma_total <= 2:
+            return ("Se produjo sequía en el día "+ str(contadordedías))
     print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
     print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
     print ("La compuerta 3 se abrió ", Compuerta3 ," veces")
     print ("La compuerta 4 se abrió ", Compuerta4 ," veces")
     print ("Sonó la Alerta Roja ", AlertaRoja ," veces")
-    return suma_total
-    
+    return ("El nivel del caudal después de " + str(len(clasificados)) + " periodos de días es de " + str(suma_total))
 
-print(procesar_y_sumar(clasificar_numeros(congruentialmixed(7,3,4,4444,1000), chi_squared_test(congruentialmixed(7,3,4,4444,100))),tiempo0))
+# Introducir valores desde la entrada del usuario
+p = int(input("Introducir el número de iteraciones de tiempo: "))
+tiempo0 = int(input("Introduce el valor del tiempo0: "))
 
+# Llamar a la función generador_aleatorio_mixto1 con los valores introducidos por el usuario
+aleatorios = generador_aleatorio_mixto1(9999, 1103515245, 12345, (2**31-1), p)
+# Llamar a las funciones siguientes con los resultados
+resultado_clasificacion = clasificar_numeros(aleatorios)
+resultado_procesamiento = procesar_y_sumar(resultado_clasificacion, tiempo0)
+
+print("Resultado final:", resultado_procesamiento)
