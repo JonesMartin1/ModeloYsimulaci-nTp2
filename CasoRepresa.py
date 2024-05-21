@@ -32,7 +32,7 @@ def generador_aleatorio_mixto1(semilla: int, a, c, m, p):
             if len(resultados) < p:
                 resultados.append(int(digit))
     if chi_squared_test(resultados):
-        return [(((x / m)*100000000)*3) for x in resultados]
+        return [((((x / m)*100000000)*2)+datetime.datetime.now().microsecond*0.0000001) for x in resultados]
     else:
         return False
 
@@ -67,6 +67,7 @@ def procesar_y_sumar(clasificados, tiempo0):
     Compuerta3 = 0
     Compuerta4 = 0
     AlertaRoja = 0
+    AlrtaDeSequía = 0
     contadordedías = 0
     
     suma_total = tiempo0
@@ -90,6 +91,11 @@ def procesar_y_sumar(clasificados, tiempo0):
         
         # Aplicar reglas de resta según el valor total
         if suma_total >= 52:
+            print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
+            print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
+            print ("La compuerta 3 se abrió ", Compuerta3 ," veces")
+            print ("La compuerta 4 se abrió ", Compuerta4 ," veces")
+            print ("Sonó la alerta Roja ", AlertaRoja ," veces")
             return ("El agua sobrepasó la represa en el día "+ str(contadordedías))
         elif suma_total > 45:
             suma_total -= 4
@@ -106,7 +112,7 @@ def procesar_y_sumar(clasificados, tiempo0):
             Compuerta4 += 1
         elif suma_total > 32:
             suma_total -= 3
-            Compuerta1 += 5
+            Compuerta1 += 1
             Compuerta2 += 1
             Compuerta3 += 1
         elif suma_total > 25:
@@ -117,13 +123,21 @@ def procesar_y_sumar(clasificados, tiempo0):
             suma_total -= 1
             Compuerta1 += 1
         elif suma_total <= 2:
-            return ("Se produjo sequía en el día "+ str(contadordedías))
+            print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
+            print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
+            print ("La compuerta 3 se abrió ", Compuerta3 ," veces")
+            print ("La compuerta 4 se abrió ", Compuerta4 ," veces")
+            print ("Sonó la alerta Roja ", AlertaRoja ," veces")
+            print ("Sonó la alerta de sequía ", AlrtaDeSequía ," veces")
+            
+            
     print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
     print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
     print ("La compuerta 3 se abrió ", Compuerta3 ," veces")
     print ("La compuerta 4 se abrió ", Compuerta4 ," veces")
-    print ("Sonó la Alerta Roja ", AlertaRoja ," veces")
-    return ("El nivel del caudal después de " + str(len(clasificados)) + " periodos de días es de " + str(suma_total))
+    print ("Sonó la alerta Roja ", AlertaRoja ," veces")
+    print ("Sonó la alerta de sequía ", AlrtaDeSequía ," veces")
+    return ("El nivel del caudal después de " + str(len(clasificados)) + " periodos de días es de " + str(suma_total) + " metros")
 
 # Introducir valores desde la entrada del usuario
 p = int(input("Introducir el número de iteraciones de tiempo: "))
