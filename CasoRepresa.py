@@ -32,12 +32,11 @@ def generador_aleatorio_mixto1(semilla: int, a, c, m, p):
             if len(resultados) < p:
                 resultados.append(int(digit))
     if chi_squared_test(resultados):
-        return [((((x / m)*100000000)*2)+datetime.datetime.now().microsecond*0.0000001) for x in resultados]
+        return [((((x / m)*100000000)*3)-datetime.datetime.now().microsecond*0.0000001) for x in resultados]
     else:
-        return False
+        return generador_aleatorio_mixto1(semilla, a, c, m, p)
 
 def clasificar_numeros(lista):
-    print(lista)
     if lista == False:
         return False
     clasificados = []
@@ -56,7 +55,6 @@ def clasificar_numeros(lista):
             clasificados.append(2)
         elif 0.888 <= valor:
             clasificados.append(3)
-    print(clasificados)
     return clasificados
 
 def procesar_y_sumar(clasificados, tiempo0):
@@ -123,13 +121,7 @@ def procesar_y_sumar(clasificados, tiempo0):
             suma_total -= 1
             Compuerta1 += 1
         elif suma_total <= 2:
-            print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
-            print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
-            print ("La compuerta 3 se abrió ", Compuerta3 ," veces")
-            print ("La compuerta 4 se abrió ", Compuerta4 ," veces")
-            print ("Sonó la alerta Roja ", AlertaRoja ," veces")
-            print ("Sonó la alerta de sequía ", AlrtaDeSequía ," veces")
-            
+            AlrtaDeSequía += 1
             
     print ("La compuerta 1 se abrió ", Compuerta1 ," veces")
     print ("La compuerta 2 se abrió ", Compuerta2 ," veces")
