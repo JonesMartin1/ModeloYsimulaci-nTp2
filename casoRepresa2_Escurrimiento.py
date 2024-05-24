@@ -32,9 +32,8 @@ def generador_aleatorio_mixto1(semilla: int, a, c, m, p):
         for digit in str(semilla):
             if len(resultados) < p:
                 resultados.append(int(digit))
-    #print(resultados)
     if chiCuadrado(resultados):
-        return [((((x / m)*100000000)*3)-datetime.datetime.now().microsecond*0.0000001) for x in resultados]
+        return [((((x / m)*360000000))) for x in resultados]
     else:
         return generador_aleatorio_mixto1(semilla, a, c, m, p)
 
@@ -42,20 +41,22 @@ def clasificar_numeros(lista):
     # Clasifica cada número de la lista y lo posiciona según la distribución proporcionada por el escenario
     clasificados = []
     for valor in lista:
-        if 0 >= valor <= 0.036:
+        if  valor < 0.036:
             clasificados.append(-3)
-        elif 0.037 <= valor <= 0.188:
+        elif 0.037 < valor <= 0.188:
             clasificados.append(-2)
-        elif 0.189 <= valor <= 0.224:
+        elif 0.189 < valor <= 0.224:
             clasificados.append(-1)
-        elif 0.225 <= valor <= 0.605:
+        elif 0.225 < valor <= 0.605:
             clasificados.append(0)
-        elif 0.606 <= valor <= 0.659:
+        elif 0.606 < valor <= 0.659:
             clasificados.append(1)
-        elif 0.660 <= valor <= 0.887:
+        elif 0.660 < valor <= 0.887:
             clasificados.append(2)
-        elif valor >= 0.888:
+        elif 0.888 < valor:
             clasificados.append(3)
+        else:
+            clasificados.append(0)
     # Transforma cada número aleatorio en una marca de clase la cuál está relacionada por una distribución 
     return clasificados
 
@@ -69,16 +70,13 @@ def procesar_y_sumar(clasificados, tiempo0):
     AlertaDeSequía = 0
     contadordedías = 0
     suma_total = tiempo0
-    almacen = 0
     
     # Por cada número clasificado se va sumando o restando según corresponda a una variable llamada suma_total
     for valor in clasificados:
         contadordedías += 1
         
-        if valor > 0:
-            suma_total += valor * 2
-        else:
-            suma_total += valor
+        #Aplicar valor de clasificados
+        suma_total += valor
         
         # Asegurar que suma_total no sea negativo
         if suma_total < 0:
@@ -91,79 +89,66 @@ def procesar_y_sumar(clasificados, tiempo0):
             print("La compuerta 3 se abrió", Compuerta3, "veces")
             print("La compuerta 4 se abrió", Compuerta4, "veces")
             print("Sonó la alerta Roja", AlertaRoja, "veces")
-            return "El agua sobrepasó la represa en el día " + str(contadordedías) + " provocando la ruptura de la misma"
-        elif suma_total > 45:
-            exceso = suma_total - 40
-            suma_total -= 6
-            if almacen + exceso > 15:
-                almacen = 15
+            if AlertaDeSequía == 1:
+                print("Sonó la alerta de sequía una sola vez")
+            elif AlertaDeSequía > 1:
+                print("Sonó la alerta de sequía", AlertaDeSequía, "veces")
             else:
-                almacen += exceso
-                print("Se almacenarón " + str(exceso) + " metros de agua en el almacen el día " + str(contadordedías))
-                print("El amacen cuenta con una capacidad de " +str(almacen)+ " metros de agua el día "+ str(contadordedías))
+                print("No sonó la alerta de sequía")
+            return "El agua sobrepasó la represa en el día " + str(contadordedías) + " provocando la ruptura de la misma"
+        elif suma_total > 45:                       
+            suma_total -= 2
             Compuerta1 += 1
             Compuerta2 += 1
             Compuerta3 += 1
             Compuerta4 += 1
             AlertaRoja += 1
-            print("Sonó la alerta roja el día", str(contadordedías))
-        elif suma_total > 40:
-            exceso = suma_total - 40
-            suma_total -= 6
-            if almacen + exceso > 15:
-                almacen = 15
-            else:
-                almacen += exceso
-                print("Se almacenarón " + str(exceso) + " metros de agua en el almacen el día " + str(contadordedías))
-                print("El amacen cuenta con una capacidad de " +str(almacen)+ " metros de agua el día "+ str(contadordedías))      
-            suma_total -= 4
+            print("Sonó la alerta roja el día "+ str(contadordedías))   
+        elif suma_total > 40:    
+            suma_total -= 2
             Compuerta1 += 1
             Compuerta2 += 1
             Compuerta3 += 1
             Compuerta4 += 1
         elif suma_total > 32:
-            suma_total -= 3
+            suma_total -= 1.5
             Compuerta1 += 1
             Compuerta2 += 1
             Compuerta3 += 1
-        elif suma_total > 25:
-            suma_total -= 2
-            Compuerta1 += 1
-            Compuerta2 += 1
-        elif suma_total > 15:
+        elif suma_total > 25:     
             suma_total -= 1
             Compuerta1 += 1
-        elif suma_total <= 2:
-            if almacen > 0:
-                suma_total += almacen
-                print("Se liberaron " + str(almacen) + " metros de agua del almacen el día " + str(contadordedías))
-                almacen = 0
+            Compuerta2 += 1
+        elif suma_total > 15: 
+            suma_total -= 0.5
+            Compuerta1 += 1
+        elif suma_total <= 6:
             AlertaDeSequía += 1
-            print("Sonó la alerta de sequía el día", str(contadordedías))
-        
+            print("Sonó la alerta de sequía el día "+ str(contadordedías))
+            
         # Asegurar que suma_total no sea negativo después de restar
         if suma_total < 0:
             suma_total = 0
-    
+            
     # Impresión final de resultados
+    print("\n***RESULTADOS***")
     print("La compuerta 1 se abrió", Compuerta1, "veces")
     print("La compuerta 2 se abrió", Compuerta2, "veces")
     print("La compuerta 3 se abrió", Compuerta3, "veces")
     print("La compuerta 4 se abrió", Compuerta4, "veces")
+
     if AlertaRoja == 1:
         print("Sonó la alerta de roja una sola vez")
     elif AlertaRoja > 1:
         print("Sonó la alerta de roja", AlertaRoja, "veces")
     else:
         print("No sonó la alerta de roja")
-        
     if AlertaDeSequía == 1:
         print("Sonó la alerta de sequía una sola vez")
     elif AlertaDeSequía > 1:
-        print("Sonó la alerta de sequía", AlertaDeSequía, "veces")
+        print("Sonó la alerta de sequía", AlertaDeSequía, " veces")
     else:
-        print("No sonó la alerta de sequía")
-    
+        print("No sonó la alerta de sequía")    
     return "El nivel del caudal después de " + str(len(clasificados)) + " periodos de días es de " + str(suma_total) + " metros"
 
 # Introducir valores desde la entrada del usuario
