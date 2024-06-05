@@ -33,7 +33,7 @@ def generador_aleatorio_mixto1(semilla: int, a, c, m, p):
             if len(resultados) < p:
                 resultados.append(int(digit))
     if chiCuadrado(resultados):
-        return [((((x / m)*360000000))) for x in resultados]
+        return [((((x / m)*345000000))) for x in resultados]
     else:
        return generador_aleatorio_mixto1(semilla, a, c, m, p)
 
