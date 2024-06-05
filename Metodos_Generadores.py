@@ -1,7 +1,7 @@
 import datetime
 import numpy as np
 import math
-from Prueba_chi_cuadrado import chi_squared_test
+from Prueba_chi_cuadrado import chiCuadrado
 
 def generador_aleatorio_mixto1(semilla: int, a: int, c: int, m: int, p: int):
     """
@@ -24,12 +24,10 @@ def generador_aleatorio_mixto1(semilla: int, a: int, c: int, m: int, p: int):
     while len(resultados) < p:
         semilla = ((a * semilla + c) % m)
         resultados.append(semilla)
-    if chi_squared_test(resultados):
+    if chiCuadrado(resultados):
         return [x / m for x in resultados]
     else:
         return generador_aleatorio_mixto1(semilla, a, c, m, p)
-      
-      
     
 def generador_aleatorio_aditivo(semilla: int, c: int, m: int, p: int):
     """
@@ -51,7 +49,7 @@ def generador_aleatorio_aditivo(semilla: int, c: int, m: int, p: int):
     while len(resultados) < p:
         semilla = (semilla + c) % m
         resultados.append(semilla)
-    if chi_squared_test(resultados):
+    if chiCuadrado(resultados):
         return [x / m for x in resultados]
     else:
         return generador_aleatorio_aditivo(semilla, c, m, p)
@@ -76,12 +74,10 @@ def generador_congruencial_multiplicativo(semilla: int, a: int, m: int, p: int):
         for digit in str(semilla):
             if len(resultados) < p:
                 resultados.append(int(digit))
-    if chi_squared_test(resultados):
+    if chiCuadrado(resultados):
         return [x / 10**len(str(max(resultados))) for x in resultados]
     else:
         return generador_congruencial_multiplicativo(semilla, a, m, p)
-
-
 
 def generador_cuadrados_medios(semilla: int, p: int):
     """
@@ -100,11 +96,11 @@ def generador_cuadrados_medios(semilla: int, p: int):
         for digit in str(semilla):
             if len(resultados) < p:
                 resultados.append(int(digit))
-    if chi_squared_test(resultados):
-        return [x / 10**len(str(max(resultados))) for x in resultados]
+    if chiCuadrado(resultados):
+        print(chiCuadrado(resultados))
+        return resultados
     else:
         return generador_cuadrados_medios(semilla, p)
-    
 
 def generador_poisson(lam: float, p: int):
     """
@@ -130,7 +126,9 @@ def generador_poisson(lam: float, p: int):
                 break
         resultados.append(k - 1)
     
-    if chi_squared_test(resultados):
+    if chiCuadrado(resultados):
         return resultados
     else:
         return generador_poisson(lam, p)
+    
+print(generador_cuadrados_medios(1234,10))
